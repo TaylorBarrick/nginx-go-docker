@@ -1,1 +1,1 @@
-Simple api to return 3 Go endpoints via nginx
+Sample api to test nginx with 3 endpoints
