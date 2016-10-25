@@ -1,0 +1,1 @@
+Simple api to return 3 Go endpoints via nginx
