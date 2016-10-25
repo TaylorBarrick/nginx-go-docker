@@ -20,6 +20,7 @@ func init() {
 	things = append(things, Thing{1, "Thing1", h})
 	things = append(things, Thing{2, "Thing2", h})
 	things = append(things, Thing{3, "Thing3", h})
+	thingMap = make(map[int]Thing)
 	for i, e := range things {
 		thingMap[i] = e
 	}
