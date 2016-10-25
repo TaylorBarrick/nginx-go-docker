@@ -5,10 +5,7 @@ import (
 	"os"
 )
 
-type Model interface{
-    
-}
-
+//Thing is a thing :)
 type Thing struct {
 	ID       int
 	Name     string
@@ -16,38 +13,49 @@ type Thing struct {
 }
 
 var things []Thing
+var thingMap map[int]Thing
 
 func init() {
 	h, _ := os.Hostname()
 	things = append(things, Thing{1, "Thing1", h})
 	things = append(things, Thing{2, "Thing2", h})
 	things = append(things, Thing{3, "Thing3", h})
+	for i, e := range things {
+		thingMap[i] = e
+	}
 }
 
+//ThingAPI is an implementation of the RestAPI for thhe Thing model
 type ThingAPI struct {
 	db *sql.DB
 }
 
+//NewThingAPI provides a ThingAPI with an unused db today
 func NewThingAPI(db *sql.DB) *ThingAPI {
 	return &ThingAPI{db}
 }
 
+//GetAll returns all of the Things
 func (a *ThingAPI) GetAll() interface{} {
 	return &things
 }
 
-func (a *ThingAPI) Get(id interface{}) interface{} {
-	return things[0]
+//Get returns a single Thing
+func (a *ThingAPI) Get(id int) interface{} {
+	return thingMap[id]
 }
 
-func (a *ThingAPI) Put(id interface{}, t interface{}) {
+//Put puts updates a single item for the given ID
+func (a *ThingAPI) Put(id int, t interface{}) {
 
 }
 
+//Post inserts a new Thing
 func (a *ThingAPI) Post(t interface{}) {
 
 }
 
-func (a *ThingAPI) Delete(id interface{}) {
+//Delete removes an item for the given ID
+func (a *ThingAPI) Delete(id int) {
 
 }
