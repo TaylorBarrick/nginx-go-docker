@@ -10,11 +10,17 @@ app1:
     build: .
     ports:
         - "8081"
+    environment:
+        - PORT=8081
 app2:
     build: .
     ports:
         - "8081"
+    environment:
+        - PORT=8081
 app3:
     build: .
     ports:
         - "8081"
+    environment:
+        - PORT=8081

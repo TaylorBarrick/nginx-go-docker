@@ -1,9 +1,6 @@
 package main
 
-import (
-	"database/sql"
-	"os"
-)
+import "os"
 
 //Thing is a thing :)
 type Thing struct {
@@ -12,33 +9,31 @@ type Thing struct {
 	Hostname string
 }
 
-var things []Thing
 var thingMap map[int]Thing
 
 func init() {
 	h, _ := os.Hostname()
-	things = append(things, Thing{1, "Thing1", h})
-	things = append(things, Thing{2, "Thing2", h})
-	things = append(things, Thing{3, "Thing3", h})
 	thingMap = make(map[int]Thing)
-	for i, e := range things {
-		thingMap[i] = e
-	}
+	thingMap[1] = Thing{1, "Thing1", h}
+	thingMap[2] = Thing{2, "Thing2", h}
+	thingMap[3] = Thing{3, "Thing3", h}
 }
 
 //ThingAPI is an implementation of the RestAPI for thhe Thing model
-type ThingAPI struct {
-	db *sql.DB
-}
+type ThingAPI struct{}
 
-//NewThingAPI provides a ThingAPI with an unused db today
-func NewThingAPI(db *sql.DB) *ThingAPI {
-	return &ThingAPI{db}
+//NewThingAPI provides a ThingAPI
+func NewThingAPI() *ThingAPI {
+	return &ThingAPI{}
 }
 
 //GetAll returns all of the Things
 func (a *ThingAPI) GetAll() interface{} {
-	return &things
+	var t []Thing
+	for _, e := range thingMap {
+		t = append(t, e)
+	}
+	return t
 }
 
 //Get returns a single Thing
@@ -58,5 +53,5 @@ func (a *ThingAPI) Post(t interface{}) {
 
 //Delete removes an item for the given ID
 func (a *ThingAPI) Delete(id int) {
-
+	delete(thingMap, id)
 }

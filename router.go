@@ -2,24 +2,32 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
-//Router is a mux for handling a couple of API items (Stufgf and Thing)
+//Router is a mux for handling a couple of API items (Stuff and Thing)
 type Router struct {
 	mux *http.ServeMux
 }
 
+//Route represents a http pattern and supporting RestAPI
+type Route struct {
+	Path string
+	API  RestAPI
+}
+
+//Routes is a collection of Route
+type Routes []Route
+
 //NewRouter provides a pointer to a new router with configured mux routes for Thing and Stuff
-func NewRouter() *Router {
+func NewRouter(routes *Routes) *Router {
 	var r Router
-	var s Stuff
-	var t Thing
 	r.mux = http.NewServeMux()
-	r.mux.HandleFunc("/stuff", route(s))
-	r.mux.HandleFunc("/thing", route(t))
+	for _, e := range *routes {
+		r.mux.HandleFunc(e.Path, route(e))
+	}
 	return &r
 }
 
@@ -27,25 +35,32 @@ func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	router.mux.ServeHTTP(w, r)
 }
 
-func route(i interface{}) func(w http.ResponseWriter, r *http.Request) {
-	var api RestAPI
-	switch i.(type) {
-	case Stuff:
-		api = NewStuffAPI(nil)
-	case Thing:
-		api = NewThingAPI(nil)
-	}
+func route(route Route) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		id := -1
+		params := getURIParams(r)
+		if len(params) > 1 {
+			id, _ = strconv.Atoi(params[1])
+		}
 		switch r.Method {
 		case "GET":
-			tokens := strings.Split(r.RequestURI, "/")
-			fmt.Println(tokens)
-			//TODO: Determine if params are present
-			v := api.GetAll()
+			var v interface{}
+			if id >= 0 {
+				v = route.API.Get(id)
+			} else {
+				v = route.API.GetAll()
+			}
 			json.NewEncoder(w).Encode(v)
+		case "DELETE":
+			route.API.Delete(id)
 		default:
-			v := api.GetAll()
+			v := route.API.GetAll()
 			json.NewEncoder(w).Encode(v)
 		}
 	}
+}
+
+func getURIParams(r *http.Request) []string {
+	path := strings.TrimSuffix(strings.TrimPrefix(r.RequestURI, "/"), "/")
+	return strings.Split(path, "/")
 }
